@@ -158,8 +158,11 @@ class LayerForm
                     JS)
                     ->relationship('rt', 'nomor', modifyQueryUsing: function (Builder $query) {
                         $user = auth()->user();
-                        if ($user->isRW() || $user->isRT()) {
+                        if ($user->isRT()) {
                             $query->where('id', $user->rt_id);
+                        }
+                        if ($user->isRW()) {
+                            $query->where('rw_id', $user->rw_id);
                         }
                     })
                     ->getOptionLabelFromRecordUsing(fn($record) => "RT {$record->nomor} / RW {$record->rw->nomor}")
