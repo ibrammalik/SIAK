@@ -137,13 +137,13 @@ class PendudukImporter extends Importer
     */
         $user = auth()->user();
 
-        if ($user->isRW() && $user->rw_id === $rw->id) {
+        if ($user->isRW() && $user->rw_id !== $rw->id) {
             throw new RowImportFailedException(
-                "Import ditolak. RW pada data ({$row['rw']}) tidak sesuai dengan wilayah Anda (RW {$user->rw->nomor})."
+                "Import ditolak. RW pada data ({$row['rw']}) tidak sesuai dengan wilayah Anda RW ({$user->rw->nomor})."
             );
         }
 
-        if ($user->isRT() === 'ketua_rt' && $user->rt_id === $rt->id) {
+        if ($user->isRT() && $user->rt_id !== $rt->id) {
             throw new RowImportFailedException(
                 "Import ditolak. RT pada data ({$row['rt']}) tidak sesuai dengan wilayah Anda (RT {$user->rt->nomor} / RW {$user->rw->nomor})."
             );
