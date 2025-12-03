@@ -16,8 +16,8 @@ class UserPolicy
         return in_array($user->role, [
             UserRole::SuperAdmin,
             UserRole::AdminKelurahan,
-            UserRole::KetuaRW,
-            UserRole::KetuaRT,
+            // UserRole::KetuaRW,
+            // UserRole::KetuaRT,
         ]);
     }
 
