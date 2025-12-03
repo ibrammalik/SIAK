@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Http\Middleware\CheckKetuaRw;
 use Filament\Actions\Action;
 use Filament\Auth\Pages\Login;
 use Filament\Http\Middleware\Authenticate;
@@ -67,6 +68,7 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                CheckKetuaRw::class,
             ])
             ->authMiddleware([
                 Authenticate::class,
