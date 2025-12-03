@@ -173,20 +173,16 @@
 </div>
 
 @assets
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <link rel="stylesheet" href="{{ asset('css/leaflet@1.9.4.css') }}"/>
+    <script src="{{ asset('js/leaflet@1.9.4.js') }}"></script>
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-gesture-handling/dist/leaflet-gesture-handling.min.css"
-        type="text/css">
-    <script src="https://unpkg.com/leaflet-gesture-handling"></script>
+    <link rel="stylesheet" href="{{ asset('css/leaflet-gesture-handling@1.2.2.min.css') }}">
+    <script src="{{ asset('js/leaflet-gesture-handling@1.2.2.min.js') }}"></script>
 
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="{{ asset('js/aos@2.3.1.min.js') }}"></script>
 
-    <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
-    <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css'
-        rel='stylesheet' />
+    <link rel='stylesheet' href="{{ asset('css/leaflet-fullscreen@1.0.1.css') }}"/>
+    <script src="{{ asset('js/leaflet-fullscreen@1.0.1.min.js') }}"></script>
 @endassets
 
 {{-- animation & navbar script --}}
