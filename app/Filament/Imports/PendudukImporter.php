@@ -4,12 +4,12 @@ namespace App\Filament\Imports;
 
 use App\Enums\Agama;
 use App\Enums\JenisKelamin;
-use App\Enums\Pekerjaan;
 use App\Enums\Pendidikan;
 use App\Enums\Shdk;
 use App\Enums\StatusKependudukan;
 use App\Enums\StatusPerkawinan;
 use App\Models\Keluarga;
+use App\Models\Pekerjaan;
 use App\Models\Penduduk;
 use App\Models\RT;
 use App\Models\RW;
@@ -75,7 +75,8 @@ class PendudukImporter extends Importer
                 ->rules(['max:255']),
 
             ImportColumn::make('pekerjaan')
-                ->rules(['max:255']),
+                ->rules(['max:255'])
+                ->fillRecordUsing(fn() => null),
 
             ImportColumn::make('status_kependudukan')
                 ->requiredMapping()
@@ -100,10 +101,8 @@ class PendudukImporter extends Importer
         $this->validateEnum($row['agama'] ?? null, Agama::class, 'Agama');
         $this->validateEnum($row['pendidikan'] ?? null, Pendidikan::class, 'Pendidikan');
         $this->validateEnum($row['status_perkawinan'] ?? null, StatusPerkawinan::class, 'Status Perkawinan');
-        $this->validateEnum($row['pekerjaan'] ?? null, Pekerjaan::class, 'Pekerjaan');
         $this->validateEnum($row['status_kependudukan'] ?? null, StatusKependudukan::class, 'Status Kependudukan');
         $this->validateEnum($row['shdk'] ?? null, Shdk::class, 'SHDK');
-
 
         /*
         |--------------------------------------------------------------------------
@@ -163,6 +162,17 @@ class PendudukImporter extends Importer
             ]
         );
 
+        /*
+        |--------------------------------------------------------------------------
+        | Pekerjaan
+        |--------------------------------------------------------------------------
+        */
+
+        $pekerjaan = Pekerjaan::firstOrCreate(
+            ['name' => $row['pekerjaan']],
+            ['name' => $row['pekerjaan']],
+        );
+
 
         /*
         |--------------------------------------------------------------------------
@@ -174,6 +184,7 @@ class PendudukImporter extends Importer
             'rw_id'       => $rw->id,
             'rt_id'       => $rt->id,
             'keluarga_id' => $keluarga->id,
+            'pekerjaan_id' => $pekerjaan->id,
         ]);
     }
 

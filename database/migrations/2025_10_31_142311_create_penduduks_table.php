@@ -27,7 +27,7 @@ return new class extends Migration
             $table->string('status_perkawinan')->nullable();
             $table->string('status_kependudukan')->nullable();
             $table->string('shdk')->nullable();
-            $table->foreignId('pekerjaan_id')->constrained()->nullOnDelete();
+            $table->foreignId('pekerjaan_id')->nullable()->constrained()->nullOnDelete();
             $table->timestamps();
         });
     }

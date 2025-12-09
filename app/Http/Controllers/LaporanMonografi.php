@@ -9,6 +9,7 @@ use App\Enums\Shdk;
 use App\Enums\SubkategoriFasilitas;
 use App\Enums\SubkategoriUsaha;
 use App\Models\Keluarga;
+use App\Models\Pekerjaan;
 use App\Models\Penduduk;
 use App\Models\RT;
 use App\Models\RW;
@@ -78,7 +79,7 @@ class LaporanMonografi extends Controller
             'keluarga_id',
             'jenis_kelamin',
             'tanggal_lahir',
-            'pekerjaan',
+            'pekerjaan_id',
             'pendidikan',
             'agama',
             'status_perkawinan',
@@ -152,21 +153,9 @@ class LaporanMonografi extends Controller
         }
 
         // default pekerjaan (tambahkan sesuai kebutuhan)
-        $defaultPekerjaan = [
-            'Petani Sendiri',
-            'Buruh Tani',
-            'Nelayan',
-            'Pengusaha',
-            'Buruh Industri',
-            'Buruh Bangunan',
-            'Dagang',
-            'Pengangkutan',
-            'ASN',
-            'Polri',
-            'TNI',
-            'Pensiunan',
-            'Lain-lain',
-        ];
+        $defaultPekerjaan = Pekerjaan::pluck('name', 'id')->toArray();
+
+        $defaultPekerjaan[null] = 'Belum diisi';
 
         // pekerjaan dihitung jika umur >= 10
         $pendudukPekerjaan = $penduduks->filter(function ($p) {
@@ -176,28 +165,18 @@ class LaporanMonografi extends Controller
         // group berdasarkan pekerjaannya
         $pekerjaanGrouped = $pendudukPekerjaan
             ->groupBy(function ($p) {
-                return trim($p->pekerjaan ?? 'Lain-lain');
+                return $p->pekerjaan_id;
             })
             ->map->count()
             ->toArray();
 
         // susun format final
         $pekerjaanFinal = [];
-        foreach ($defaultPekerjaan as $jenis) {
+        foreach ($defaultPekerjaan as $id => $name) {
             $pekerjaanFinal[] = [
-                'jenis' => $jenis,
-                'jumlah' => $pekerjaanGrouped[$jenis] ?? 0,
+                'jenis' => $name,
+                'jumlah' => $pekerjaanGrouped[$id] ?? 0,
             ];
-        }
-
-        // tambahkan pekerjaan di DB yang tidak ada di default
-        foreach ($pekerjaanGrouped as $jenis => $jumlah) {
-            if (!in_array($jenis, $defaultPekerjaan)) {
-                $pekerjaanFinal[] = [
-                    'jenis' => $jenis,
-                    'jumlah' => $jumlah,
-                ];
-            }
         }
 
         // default pendidikan (sesuaikan dengan kebutuhan; akan ditambah jika ada lainnya)

@@ -38,7 +38,7 @@ class PendudukInfolist
                 TextEntry::make('status_perkawinan')
                     ->badge()
                     ->placeholder('-'),
-                TextEntry::make('pekerjaan')
+                TextEntry::make('pekerjaan.name')
                     ->placeholder('-'),
                 TextEntry::make('status_kependudukan')
                     ->badge(),

@@ -66,7 +66,7 @@ class PenduduksRelationManager extends RelationManager
                     ->label('Status Perkawinan')
                     ->toggleable(),
 
-                TextColumn::make('pekerjaan')
+                TextColumn::make('pekerjaan.name')
                     ->label('Pekerjaan')
                     ->toggleable(),
 

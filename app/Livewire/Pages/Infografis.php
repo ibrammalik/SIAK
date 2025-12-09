@@ -4,12 +4,12 @@ namespace App\Livewire\Pages;
 
 use App\Enums\Agama;
 use App\Enums\JenisKelamin;
-use App\Enums\Pekerjaan;
 use App\Enums\Pendidikan;
 use App\Enums\Shdk;
 use App\Enums\StatusPerkawinan;
 use App\Livewire\BaseLayout;
 use App\Models\Keluarga;
+use App\Models\Pekerjaan;
 use App\Models\Penduduk;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -26,7 +26,7 @@ class Infografis extends BaseLayout
             'keluarga_id',
             'jenis_kelamin',
             'tanggal_lahir',
-            'pekerjaan',
+            'pekerjaan_id',
             'pendidikan',
             'agama',
             'status_perkawinan',
@@ -168,17 +168,17 @@ class Infografis extends BaseLayout
         }
 
         // ============================
-        // PEKERJAAN (berdasarkan Enum)
+        // PEKERJAAN (berdasarkan Models)
         // ============================
 
         // Ambil label enum
-        $pekerjaanLabels = Pekerjaan::values();
+        $pekerjaanLabels = Pekerjaan::pluck('name', 'id')->toArray();
 
         // Hitung jumlah tiap pekerjaan
         $pekerjaanCounts = [];
-        foreach (Pekerjaan::cases() as $case) {
-            $count = Penduduk::where('pekerjaan', $case->value)->count();
-            $pekerjaanCounts[$case->value] = $count;
+        foreach ($pekerjaanLabels as $id => $name) {
+            $count = Penduduk::where('pekerjaan_id', $id)->count();
+            $pekerjaanCounts[$name] = $count;
         }
 
         // Urutkan dari jumlah terbanyak → sedikit
@@ -187,6 +187,7 @@ class Infografis extends BaseLayout
         // Ambil 6 pekerjaan teratas untuk kartu ringkasan
         $pekerjaanTop6 = array_slice($pekerjaanCounts, 0, 6, true);
 
+        // Wajib Ikut Pilihan
         $currentYear = now()->year;
         $years = range($currentYear - 4, $currentYear); // 5 tahun terakhir
 

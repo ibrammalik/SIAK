@@ -15,7 +15,6 @@ use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use App\Enums\Agama;
 use App\Enums\JenisKelamin;
-use App\Enums\Pekerjaan;
 use App\Enums\Pendidikan;
 use App\Enums\StatusPerkawinan;
 use App\Enums\StatusKependudukan;
@@ -158,13 +157,20 @@ class PendudukForm
                             ->hintIcon('heroicon-m-heart')
                             ->hintIconTooltip('Pilih status perkawinan saat ini.'),
 
-                        Select::make('pekerjaan')
+                        Select::make('pekerjaan_id')
                             ->label('Pekerjaan')
-                            ->options(Pekerjaan::class)
+                            ->relationship('pekerjaan', 'name')
+                            ->preload()
+                            ->searchable()
                             ->native(false)
                             ->required()
+                            ->createOptionForm([
+                                TextInput::make('name')
+                                    ->label('Kategori')
+                                    ->required()
+                            ])
                             ->hintIcon('heroicon-m-briefcase')
-                            ->hintIconTooltip('Masukkan jenis pekerjaan atau profesi saat ini.'),
+                            ->hintIconTooltip('Masukkan jenis pekerjaan atau profesi saat ini. Klik tombol + untuk menambah pekerjaan yang belum ada di kategori.'),
 
                         Select::make('status_kependudukan')
                             ->label('Status Kependudukan')
