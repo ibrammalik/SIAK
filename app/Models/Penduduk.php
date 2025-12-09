@@ -20,10 +20,10 @@ class Penduduk extends Model
         'agama',
         'pendidikan',
         'status_perkawinan',
-        'pekerjaan',
         'status_kependudukan',
         'shdk',
-        'no_telp'
+        'no_telp',
+        'pekerjaan_id',
     ];
 
     public function keluarga()
@@ -39,5 +39,10 @@ class Penduduk extends Model
     public function rt()
     {
         return $this->belongsTo(RT::class);
+    }
+
+    public function pekerjaan()
+    {
+        return $this->belongsTo(Pekerjaan::class);
     }
 }
