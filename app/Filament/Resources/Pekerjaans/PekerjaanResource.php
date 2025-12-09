@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Filament\Resources\KategoriPekerjaans;
+namespace App\Filament\Resources\Pekerjaans;
 
-use App\Filament\Resources\KategoriPekerjaans\Pages\ManageKategoriPekerjaans;
-use App\Models\KategoriPekerjaan;
+use App\Filament\Resources\Pekerjaans\Pages\ManagePekerjaans;
+use App\Models\Pekerjaan;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -17,14 +17,14 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use UnitEnum;
 
-class KategoriPekerjaanResource extends Resource
+class PekerjaanResource extends Resource
 {
-    protected static ?string $model = KategoriPekerjaan::class;
+    protected static ?string $model = Pekerjaan::class;
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
     protected static string | UnitEnum | null $navigationGroup = 'Master Data';
     protected static ?string $navigationLabel = 'Pekerjaan';
     protected static ?string $pluralModelLabel = 'Pekerjaan';
-    protected static ?string $modelLabel = 'Kategori Pekerjaan';
+    protected static ?string $modelLabel = 'Pekerjaan';
 
     public static function form(Schema $schema): Schema
     {
@@ -44,6 +44,14 @@ class KategoriPekerjaanResource extends Resource
                 TextColumn::make('name')
                     ->label('Kategori')
                     ->searchable(),
+                TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
@@ -62,7 +70,7 @@ class KategoriPekerjaanResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ManageKategoriPekerjaans::route('/'),
+            'index' => ManagePekerjaans::route('/'),
         ];
     }
 }

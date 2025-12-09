@@ -12,13 +12,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kategori_pekerjaans', function (Blueprint $table) {
+        Schema::create('pekerjaans', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->timestamps();
         });
 
-        DB::table('kategori_pekerjaans')->insert([
+        DB::table('pekerjaans')->insert([
             ['name' => 'Petani Sendiri'],
             ['name' => 'Buruh Tani'],
             ['name' => 'Nelayan'],
@@ -42,6 +42,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('kategori_pekerjaans');
+        Schema::dropIfExists('pekerjaans');
     }
 };
