@@ -19,15 +19,14 @@ return new class extends Migration
         });
 
         DB::table('kategori_usahas')->insert([
-            ['name' => 'Perdagangan'],
-            ['name' => 'Jasa'],
-            ['name' => 'Industri Rumahan'],
-            ['name' => 'Kuliner'],
-            ['name' => 'Pertanian'],
-            ['name' => 'Peternakan'],
-            ['name' => 'Pariwisata'],
-            ['name' => 'Kesehatan'],
-            ['name' => 'Lainnya'],
+            ['name' => 'Perdagangan', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Jasa', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Industri Rumahan', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Kuliner', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Pertanian', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Peternakan', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Pariwisata', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Kesehatan', 'created_at' => now(), 'updated_at' => now()],
         ]);
     }
 

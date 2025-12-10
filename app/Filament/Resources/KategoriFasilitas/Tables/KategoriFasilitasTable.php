@@ -1,54 +1,28 @@
 <?php
 
-namespace App\Filament\Resources\Usahas\Tables;
+namespace App\Filament\Resources\KategoriFasilitas\Tables;
 
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-class UsahasTable
+class KategoriFasilitasTable
 {
     public static function configure(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('nama')
+                TextColumn::make('name')
                     ->label('Nama')
                     ->searchable(),
-
-                TextColumn::make('kategoriUsaha.name')
-                    ->label('Kategori')
-                    ->searchable(),
-
-                TextColumn::make('subkategoriUsaha.name')
-                    ->label('Subkategori')
-                    ->searchable(),
-
-                TextColumn::make('nama_pemilik')
-                    ->searchable(),
-
-                TextColumn::make('rw.nomor')
-                    ->label('RW')
-                    ->numeric()
-                    ->sortable(),
-
-                TextColumn::make('rt.nomor')
-                    ->label('RT')
-                    ->numeric()
-                    ->sortable(),
-
-                TextColumn::make('alamat')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
@@ -60,6 +34,7 @@ class UsahasTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
+                DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources\Fasilitas\Schemas;
 
-use App\Enums\KategoriFasilitas;
-use App\Enums\SubkategoriFasilitas;
+use App\Models\KategoriFasilitas;
 use App\Models\RT;
 use App\Models\RW;
+use App\Models\SubkategoriFasilitas;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -18,40 +18,64 @@ class FasilitasForm
     {
         return $schema
             ->components([
-                Select::make('kategori')
+                Select::make('kategori_fasilitas_id')
                     ->label('Kategori')
-                    ->options(KategoriFasilitas::class)
+                    ->relationship('kategoriFasilitas', 'name')
+                    ->preload()
+                    ->searchable()
                     ->native(false)
                     ->live()
                     ->afterStateUpdated(function ($set) {
-                        $set('subkategori', null);
-                        $set('subkategori_lainnya', null);
+                        $set('subkategori_fasilitas_id', null);
                     })
+                    ->createOptionForm([
+                        TextInput::make('name')
+                            ->label('Nama Kategori')
+                            ->required(),
+                    ])
                     ->required()
                     ->hintIcon('heroicon-o-information-circle')
                     ->hintIconTooltip('Pilih kategori utama fasilitas'),
 
-                Select::make('subkategori')
-                    ->label('Sub Kategori')
-                    ->options(
-                        fn($get) => collect(SubkategoriFasilitas::byKategori($get('kategori')))
-                            ->mapWithKeys(fn(SubkategoriFasilitas $item) => [
-                                $item->value => $item->getLabel(),
-                            ])
-                            ->toArray()
+                Select::make('subkategori_fasilitas_id')
+                    ->label('Subkategori')
+                    ->relationship(
+                        name: 'subkategoriFasilitas',
+                        titleAttribute: 'name',
+                        modifyQueryUsing: function (Builder $query, $get) {
+                            $kategoriFasilitasId = $get('kategori_fasilitas_id');
+                            if ($kategoriFasilitasId !== null) {
+                                return $query->where('kategori_fasilitas_id', $kategoriFasilitasId);
+                            }
+                        }
                     )
+                    ->preload()
+                    ->searchable()
                     ->native(false)
                     ->live()
+                    ->afterStateUpdated(function ($state, $set) {
+                        if ($state) {
+                            $sub = SubkategoriFasilitas::find($state);
+                            if ($sub) {
+                                $set('kategori_fasilitas_id', $sub->kategori_fasilitas_id);
+                            }
+                        }
+                    })
+                    ->createOptionForm([
+                        Select::make('kategori_fasilitas_id')
+                            ->label('Kategori')
+                            ->options(KategoriFasilitas::pluck('name', 'id'))
+                            ->searchable()
+                            ->native(false)
+                            ->required(),
+
+                        TextInput::make('name')
+                            ->label('Nama Subkategori')
+                            ->required(),
+                    ])
                     ->required()
                     ->hintIcon('heroicon-o-information-circle')
-                    ->hintIconTooltip('Pilih subkategori sesuai jenis fasilitas. Jika subkategori tidak ada, pilih "Lainnya"'),
-
-                TextInput::make('subkategori_lainnya')
-                    ->label('Sub Kategori Lainnya')
-                    ->visible(fn($get) => $get('subkategori') === SubkategoriFasilitas::LAINNYA->value)
-                    ->columnSpanFull()
-                    ->hintIcon('heroicon-o-information-circle')
-                    ->hintIconTooltip('Isi jika subkategori belum tersedia'),
+                    ->hintIconTooltip('Pilih subkategori sesuai jenis fasilitas. Jika subkategori tidak ada, tambah dengan klik tombol +'),
 
                 TextInput::make('nama')
                     ->label('Nama Fasilitas')

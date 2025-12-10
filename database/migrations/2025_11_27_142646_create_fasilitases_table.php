@@ -14,9 +14,8 @@ return new class extends Migration
         Schema::create('fasilitases', function (Blueprint $table) {
             $table->id();
 
-            $table->string('kategori');
-            $table->string('subkategori');
-            $table->string('subkategori_lainnya')->nullable();
+            $table->foreignId('kategori_fasilitas_id')->nullable()->constrained('kategori_fasilitas')->nullOnDelete();
+            $table->foreignId('subkategori_fasilitas_id')->nullable()->constrained('subkategori_fasilitas')->nullOnDelete();
 
             $table->string('nama');
             $table->string('alamat');

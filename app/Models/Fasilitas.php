@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\KategoriFasilitas;
-use App\Enums\SubkategoriFasilitas;
 use Illuminate\Database\Eloquent\Model;
 
 class Fasilitas extends Model
@@ -11,18 +9,12 @@ class Fasilitas extends Model
     protected $table = 'fasilitases';
 
     protected $fillable = [
-        'kategori',
-        'subkategori',
-        'subkategori_lainnya',
+        'kategori_fasilitas_id',
+        'subkategori_fasilitas_id',
         'nama',
         'alamat',
         'rw_id',
         'rt_id',
-    ];
-
-    protected $casts = [
-        'kategori' => KategoriFasilitas::class,
-        'subkategori' =>  SubkategoriFasilitas::class,
     ];
 
     public function rw()
@@ -33,5 +25,15 @@ class Fasilitas extends Model
     public function rt()
     {
         return $this->belongsTo(RT::class);
+    }
+
+    public function kategoriFasilitas()
+    {
+        return $this->belongsTo(KategoriFasilitas::class);
+    }
+
+    public function subkategoriFasilitas()
+    {
+        return $this->belongsTo(SubkategoriFasilitas::class);
     }
 }

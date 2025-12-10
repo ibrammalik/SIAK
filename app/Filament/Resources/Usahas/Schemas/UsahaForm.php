@@ -26,7 +26,7 @@ class UsahaForm
                     ->native(false)
                     ->live()
                     ->afterStateUpdated(function ($set) {
-                        $set('subkategori', null);
+                        $set('subkategori_usaha_id', null);
                     })
                     ->createOptionForm([
                         TextInput::make('name')

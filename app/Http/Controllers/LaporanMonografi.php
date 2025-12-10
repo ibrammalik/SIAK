@@ -3,14 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Enums\JenisKelamin;
-use App\Enums\KategoriFasilitas;
 use App\Enums\Shdk;
-use App\Enums\SubkategoriFasilitas;
+use App\Models\KategoriFasilitas;
 use App\Models\KategoriUsaha;
 use App\Models\Pekerjaan;
 use App\Models\Penduduk;
 use App\Models\RT;
 use App\Models\RW;
+use App\Models\SubkategoriFasilitas;
 use App\Models\SubkategoriUsaha;
 use App\Models\Usaha;
 use Carbon\Carbon;
@@ -332,38 +332,38 @@ class LaporanMonografi extends Controller
 
         // siapkan struktur berdasarkan enum KategoriFasilitas + SubkategoriFasilitas::byKategori
         $fasilitasByKategori = [];
-        foreach (KategoriFasilitas::cases() as $kategoriEnum) {
-            $key = $kategoriEnum->value;
+        foreach (KategoriFasilitas::pluck('name', 'id')->toArray() as $kategoriFasilitasId => $name) {
+            $key = $name;
             $fasilitasByKategori[$key] = [
-                'label' => $kategoriEnum->getLabel(),
+                'label' => $name,
                 'total' => 0,
                 'sub' => [],
             ];
 
             // panggil byKategori dengan enum instance (atau ->value jika signature byKategori membutuhkan string)
-            $subcases = SubkategoriFasilitas::byKategori($kategoriEnum);
-            foreach ($subcases as $subcase) {
-                $fasilitasByKategori[$key]['sub'][$subcase->value] = [
-                    'label' => $subcase->getLabel(),
+            $subcases = SubkategoriFasilitas::where('kategori_fasilitas_id', $kategoriFasilitasId)->pluck('name', 'id')->toArray();
+            foreach ($subcases as $sub_id => $name) {
+                $fasilitasByKategori[$key]['sub'][$name] = [
+                    'label' => $name,
                     'total' => 0,
                 ];
             }
         }
 
         // ambil data fasilitas dari DB (filter RW/RT jika perlu)
-        $fasilitass = \App\Models\Fasilitas::select(['kategori', 'subkategori'])
+        $fasilitass = \App\Models\Fasilitas::select(['kategori_fasilitas_id', 'subkategori_fasilitas_id'])
             ->when($wilayah === 'rw' && $id, fn($q) => $q->where('rw_id', $id))
             ->when($wilayah === 'rt' && $id, fn($q) => $q->where('rt_id', $id))
             ->get();
 
         // masukkan data DB ke struktur (juga accept kategori/subkategori yang tidak ada di enum)
         foreach ($fasilitass as $f) {
-            $cat = $f->kategori;
-            $sub = $f->subkategori;
+            $cat = $f->kategoriFasilitas->name;
+            $sub = $f->subkategoriFasilitas->name;
 
-            $fasilitasByKategori[$cat->value]['total']++;
+            $fasilitasByKategori[$cat]['total']++;
 
-            $fasilitasByKategori[$cat->value]['sub'][$sub->value]['total']++;
+            $fasilitasByKategori[$cat]['sub'][$sub]['total']++;
         }
 
         // Susun $data final (sama struktur dengan contoh static-mu)

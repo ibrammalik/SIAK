@@ -1,51 +1,46 @@
 <?php
 
-namespace App\Filament\Resources\Fasilitas\Tables;
+namespace App\Filament\Resources\KategoriFasilitas\RelationManagers;
 
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
+use Filament\Forms\Components\TextInput;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-class FasilitasTable
+class SubkategoriFasilitasRelationManager extends RelationManager
 {
-    public static function configure(Table $table): Table
+    protected static string $relationship = 'subkategoriFasilitas';
+    protected static bool $isLazy = false;
+
+    public function form(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                TextInput::make('name')
+                    ->label('Nama')
+                    ->columnSpanFull()
+                    ->required(),
+            ]);
+    }
+
+    public function table(Table $table): Table
     {
         return $table
+            ->recordTitleAttribute('name')
             ->columns([
-                TextColumn::make('nama')
+                TextColumn::make('name')
                     ->label('Nama')
                     ->searchable(),
-
-                TextColumn::make('kategoriFasilitas.name')
-                    ->label('Kategori')
-                    ->searchable(),
-
-                TextColumn::make('subkategoriFasilitas.name')
-                    ->badge()
-                    ->searchable(),
-
-                TextColumn::make('rw.nomor')
-                    ->label('RW')
-                    ->numeric()
-                    ->sortable(),
-
-                TextColumn::make('rt.nomor')
-                    ->label('RT')
-                    ->numeric()
-                    ->sortable(),
-
-                TextColumn::make('alamat')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
@@ -54,9 +49,12 @@ class FasilitasTable
             ->filters([
                 //
             ])
+            ->headerActions([
+                CreateAction::make(),
+            ])
             ->recordActions([
-                ViewAction::make(),
                 EditAction::make(),
+                DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
