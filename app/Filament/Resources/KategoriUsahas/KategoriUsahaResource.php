@@ -5,6 +5,7 @@ namespace App\Filament\Resources\KategoriUsahas;
 use App\Filament\Resources\KategoriUsahas\Pages\CreateKategoriUsaha;
 use App\Filament\Resources\KategoriUsahas\Pages\EditKategoriUsaha;
 use App\Filament\Resources\KategoriUsahas\Pages\ListKategoriUsahas;
+use App\Filament\Resources\KategoriUsahas\Pages\ViewKategoriUsaha;
 use App\Filament\Resources\KategoriUsahas\RelationManagers\SubkategoriUsahaRelationManager;
 use App\Filament\Resources\KategoriUsahas\Schemas\KategoriUsahaForm;
 use App\Filament\Resources\KategoriUsahas\Tables\KategoriUsahasTable;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\KategoriUsahas;
+namespace App\Filament\Resources\KategoriUsahas\Pages;
 
 use App\Filament\Resources\KategoriUsahas\KategoriUsahaResource;
 use Filament\Actions\EditAction;
