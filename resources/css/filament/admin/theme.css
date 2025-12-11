@@ -1,5 +1,5 @@
-@import '../../../../vendor/filament/filament/resources/css/theme.css';
-@import 'tailwindcss';
+@import "../../../../vendor/filament/filament/resources/css/theme.css";
+@import "tailwindcss";
 
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
@@ -7,34 +7,34 @@
 @source '../../../../vendor/guava/filament-icon-picker/resources/**/*';
 
 .marker-pin {
-  width: 32px;
-  height: 32px;
-  border: 1px solid black;
-  border-radius: 50% 50% 50% 0;
-  background: #fff;
-  position: absolute;
-  transform: rotate(-45deg);
-  left: 50%;
-  top: 50%;
-  margin: -15px 0 0 -15px;
+    width: 32px;
+    height: 32px;
+    border: 1px solid black;
+    border-radius: 50% 50% 50% 0;
+    background: #fff;
+    position: absolute;
+    transform: rotate(-45deg);
+    left: 50%;
+    top: 50%;
+    margin: -15px 0 0 -15px;
 }
 
 .marker-pin::after {
-    content: '';
+    content: "";
     background-color: var(--marker-color);
     width: 24px;
     height: 24px;
     margin: 3px 0 0 3px;
     position: absolute;
     border-radius: 50%;
- }
+}
 
 .custom-div-icon svg {
-   position: absolute;
-   width: 22px;
-   font-size: 22px;
-   left: 0;
-   right: 0;
-   margin: 11px 5px;
-   text-align: center;
+    position: absolute;
+    width: 22px;
+    font-size: 22px;
+    left: 0;
+    right: 0;
+    margin: 11px 5px;
+    text-align: center;
 }

@@ -6,51 +6,99 @@ use App\Enums\UserRole;
 use App\Livewire\BaseLayout;
 use App\Models\RW;
 use App\Models\User;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Concerns\InteractsWithSchemas;
+use Filament\Schemas\Contracts\HasSchemas;
+use Filament\Schemas\Schema;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Hash;
-use Livewire\Component;
 
-class RWOnboarding extends BaseLayout
+class RWOnboarding extends BaseLayout implements HasSchemas
 {
-    protected string $pageTitle = 'RW Onboarding';
-    public $user_name, $user_email, $user_password, $nomor_rw;
+    use InteractsWithSchemas;
 
-    protected $rules = [
-        'user_name' => 'required|min:3',
-        'user_email' => 'required|email|unique:users,email',
-        'user_password' => 'required|min:6',
-        'nomor_rw' => 'required'
-    ];
+    protected string $pageTitle = 'RW Onboarding';
+
+    public ?array $data = [];
 
     public function mount()
     {
-        // If ketua_rw already exists, redirect to Filament login
-        if (User::where('role', 'ketua_rw')->exists()) {
-            return redirect()->route('filament.app.auth.login'); // default Filament login route
+        if (User::where('role', UserRole::KetuaRW)->exists()) {
+            return redirect()->route('filament.app.auth.login');
         }
+
+        $this->form->fill();
     }
 
-    public function register()
+    protected function form(Schema $schema): Schema
     {
-        $this->validate();
+        return $schema
+            ->components([
+                TextInput::make('nama')
+                    ->label('Nama Anda')
+                    ->placeholder('Contoh: Budi Santoso')
+                    ->helperText('Masukkan nama lengkap Anda sebagai ketua RW.')
+                    ->required(),
 
-        // Create RW
+                TextInput::make('email')
+                    ->email()
+                    ->label('Email Login')
+                    ->placeholder('contoh: ketuarw@gmail.com')
+                    ->helperText('Email ini akan digunakan untuk login ke aplikasi.')
+                    ->required(),
+
+                TextInput::make('password')
+                    ->password()
+                    ->revealable()
+                    ->label('Password Login')
+                    ->placeholder('Minimal 6 karakter')
+                    ->helperText('Password ini digunakan untuk login ke aplikasi.')
+                    ->required(),
+
+                TextInput::make('confirm_password')
+                    ->label('Konfirmasi Password')
+                    ->password()
+                    ->revealable()
+                    ->placeholder('Ulangi password Anda')
+                    ->helperText('Harus sama dengan password di atas.')
+                    ->same('password')
+                    ->required(),
+
+                TextInput::make('nomor_rw')
+                    ->numeric()
+                    ->label('Nomor RW')
+                    ->placeholder('Contoh: 3')
+                    ->helperText('Masukkan nomor RW wilayah Anda. Gunakan angka, misalnya: 3.')
+                    ->required(),
+            ])
+            ->statePath('data');
+    }
+
+    public function create()
+    {
+        $data = $this->form->getState();
+
+        if ($data['password'] !== $data['confirm_password']) {
+            $this->addError('data.confirm_password', 'Password tidak cocok.');
+            return;
+        }
+
         $rw = RW::create([
-            'nomor' => $this->nomor_rw,
+            'nomor' => $data['nomor_rw'],
         ]);
 
-        // Create user
-        $user = User::create([
-            'name' => $this->user_name,
-            'email' => $this->user_email,
-            'password' => Hash::make($this->user_password),
+        User::create([
+            'name' => $data['nama'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
             'role' => UserRole::KetuaRW,
-            'rw_id' =>  $rw->id,
+            'rw_id' => $rw->id,
         ]);
 
         return redirect()->route('filament.app.auth.login');
     }
 
-    public function render()
+    public function render(): View
     {
         return $this->layoutWithData(
             view('livewire.pages.r-w-onboarding')

@@ -11,10 +11,14 @@
     <link href="{{ asset('css/fontawesome.css') }}" rel="stylesheet" />
     <link href="{{ asset('css/brands.css') }}" rel="stylesheet" />
     <link href="{{ asset('css/solid.css') }}" rel="stylesheet" />
-    <link href="{{ asset('css/fonts.css') }}" rel="stylesheet" >
+    <link href="{{ asset('css/fonts.css') }}" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
     @livewireStyles
+
+    <!-- Filament Styles -->
+    @filamentStyles
+    <link rel="stylesheet" href="{{ asset('css/filament/filament/app.css') }}">
 </head>
 
 <body class="bg-gray-50 text-gray-800">
@@ -144,6 +148,7 @@
 
     @stack('scripts')
     @livewireScripts
+    @filamentScripts
 </body>
 
 </html>
