@@ -68,7 +68,7 @@ class LatestPendudukWidget extends TableWidget
 
                 TextColumn::make('created_at')
                     ->label('Didaftarkan')
-                    ->dateTime('d F Y')
+                    ->dateTime()
                     ->sortable()
                     ->icon('heroicon-o-clock'),
             ])
