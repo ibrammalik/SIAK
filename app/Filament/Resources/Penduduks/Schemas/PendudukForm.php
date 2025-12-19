@@ -89,6 +89,13 @@ class PendudukForm
                         TextInput::make('nik')
                             ->label('NIK')
                             ->required()
+                            ->length(16)
+                            ->maxLength(16)
+                            ->extraInputAttributes([
+                                'inputmode' => 'numeric',
+                                'pattern' => '[0-9]*',
+                                'oninput' => "this.value = this.value.replace(/\\D/g,'').slice(0,16)",
+                            ])
                             ->unique(ignoreRecord: true)
                             ->columnSpanFull()
                             ->hintIcon('heroicon-m-identification')
