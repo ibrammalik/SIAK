@@ -55,6 +55,13 @@ class KeluargaForm
 
                 TextInput::make('no_kk')
                     ->label('Nomor KK')
+                    ->length(16)
+                    ->maxLength(16)
+                    ->extraInputAttributes([
+                        'inputmode' => 'numeric',
+                        'pattern' => '[0-9]*',
+                        'oninput' => "this.value = this.value.replace(/\\D/g,'').slice(0,16)",
+                    ])
                     ->unique(ignoreRecord: true)
                     ->required()
                     ->columnSpanFull()
