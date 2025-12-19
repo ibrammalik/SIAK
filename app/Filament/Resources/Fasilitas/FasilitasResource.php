@@ -28,6 +28,11 @@ class FasilitasResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'nama';
 
+    protected static ?string $slug = 'fasilitas-umum';
+    protected static ?string $navigationLabel = 'Fasilitas Umum';
+    protected static ?string $pluralModelLabel = 'Fasilitas Umum';
+    protected static ?string $modelLabel = 'Fasilitas Umum';
+
     public static function form(Schema $schema): Schema
     {
         return FasilitasForm::configure($schema);
