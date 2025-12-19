@@ -2,16 +2,19 @@
 
 namespace App\Filament\Widgets;
 
+use App\Filament\Concerns\ResolvesWilayah;
 use App\Models\Penduduk;
 use Filament\Actions\BulkActionGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\TableWidget;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
 
 class LatestPendudukWidget extends TableWidget
 {
+    use InteractsWithPageFilters, ResolvesWilayah;
+
     protected static bool $isLazy = false;
     protected static ?string $heading = 'Penduduk Terbaru';
     protected int|string|array $columnSpan = 'full';
@@ -21,16 +24,19 @@ class LatestPendudukWidget extends TableWidget
     {
         return $table
             ->query(function (): Builder {
-                $user = auth()->user();
+                $state = $this->resolveWilayah();
+
                 $query = Penduduk::query();
 
-                if ($user->isRT()) {
-                    $query->where('rt_id', $user->rt_id);
-                } elseif ($user->isRW()) {
-                    $query->where('rw_id', $user->rw_id);
+                if ($state['wilayah'] === 'rw') {
+                    $query->where('rw_id', $state['rw']->id);
                 }
 
-                return $query->latest()->limit(5);
+                if ($state['wilayah'] === 'rt') {
+                    $query->where('rt_id', $state['rt']->id);
+                }
+
+                return $query->latest()->limit(6);
             })
             ->columns([
                 TextColumn::make('nama')
@@ -62,7 +68,7 @@ class LatestPendudukWidget extends TableWidget
 
                 TextColumn::make('created_at')
                     ->label('Didaftarkan')
-                    ->dateTime('d M Y')
+                    ->dateTime('d F Y')
                     ->sortable()
                     ->icon('heroicon-o-clock'),
             ])

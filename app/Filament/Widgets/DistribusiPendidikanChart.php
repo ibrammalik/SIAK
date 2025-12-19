@@ -2,44 +2,58 @@
 
 namespace App\Filament\Widgets;
 
+use App\Filament\Concerns\ResolvesWilayah;
 use App\Models\Penduduk;
 use Filament\Widgets\ChartWidget;
-use Illuminate\Support\Facades\Auth;
+use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Illuminate\Support\Facades\DB;
 
 class DistribusiPendidikanChart extends ChartWidget
 {
+    use InteractsWithPageFilters, ResolvesWilayah;
+
     protected ?string $heading = 'Distribusi Pendidikan';
     protected static ?int $sort = 2;
     protected static bool $isLazy = false;
 
     protected function getData(): array
     {
-        $user = auth()->user();
+        $state = $this->resolveWilayah();
 
         $query = Penduduk::query();
 
-        if ($user->isRT()) {
-            $query->where('rt_id', $user->rt_id);
-        } elseif ($user->isRW()) {
-            $query->where('rw_id', $user->rw_id);
+        if ($state['wilayah'] === 'rw') {
+            $query->where('rw_id', $state['rw']->id);
         }
 
-        $data = $query
+        if ($state['wilayah'] === 'rt') {
+            $query->where('rt_id', $state['rt']->id);
+        }
+
+        // Ambil data dari database
+        $rawData = $query
             ->select('pendidikan', DB::raw('COUNT(*) as total'))
             ->groupBy('pendidikan')
-            ->orderBy('pendidikan')
             ->pluck('total', 'pendidikan')
             ->toArray();
+
+        // Normalisasi berdasarkan Enum Pendidikan
+        $labels = [];
+        $values = [];
+
+        foreach (\App\Enums\Pendidikan::values() as $pendidikan) {
+            $labels[] = $pendidikan;
+            $values[] = $rawData[$pendidikan] ?? 0;
+        }
 
         return [
             'datasets' => [
                 [
                     'label' => 'Jumlah Penduduk',
-                    'data' => array_values($data),
+                    'data' => $values,
                 ],
             ],
-            'labels' => array_keys($data),
+            'labels' => $labels,
         ];
     }
 
@@ -54,7 +68,7 @@ class DistribusiPendidikanChart extends ChartWidget
             'scales' => [
                 'y' => [
                     'ticks' => [
-                        'precision' => 0, // This forces integer values
+                        'precision' => 0,
                     ],
                 ],
             ],
