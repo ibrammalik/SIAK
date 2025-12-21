@@ -1,0 +1,84 @@
+version: "3.9"
+
+services:
+    app:
+        image: dunglas/frankenphp:php8.3-alpine
+        container_name: laravel-octane
+        restart: unless-stopped
+        working_dir: /app
+        volumes:
+            - .:/app
+        env_file:
+            - .env
+        command: >
+            sh -c "
+            php artisan octane:start
+            --server=frankenphp
+            --host=0.0.0.0
+            --port=8000
+            --workers=2
+            "
+        networks:
+            - proxy
+        labels:
+            - traefik.enable=true
+
+            # HTTP
+            - traefik.http.routers.${APP_NAME}.rule=Host(`${APP_URL}`)
+            - traefik.http.routers.${APP_NAME}.entrypoints=web
+
+            # HTTPS
+            - traefik.http.routers.${APP_NAME}-https.rule=Host(`${APP_URL}`)
+            - traefik.http.routers.${APP_NAME}-https.entrypoints=websecure
+            - traefik.http.routers.${APP_NAME}-https.tls=true
+            - traefik.http.routers.${APP_NAME}-https.tls.certresolver=cloudflare
+
+            # Service
+            - traefik.http.services.${APP_NAME}.loadbalancer.server.port=8000
+
+    db:
+        image: mysql:8.4
+        container_name: mysql
+        restart: unless-stopped
+        environment:
+            MYSQL_DATABASE: ${DB_DATABASE}
+            MYSQL_USER: ${DB_USERNAME}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+        volumes:
+            - mysql-data:/var/lib/mysql
+
+    redis:
+        image: redis:7-alpine
+        container_name: redis
+        restart: unless-stopped
+
+    queue:
+        image: dunglas/frankenphp:php8.3-alpine
+        container_name: laravel-queue
+        restart: unless-stopped
+        working_dir: /app
+        volumes:
+            - .:/app
+        env_file:
+            - .env
+        command: php artisan queue:work --sleep=1 --tries=3
+
+    scheduler:
+        image: dunglas/frankenphp:php8.3-alpine
+        container_name: laravel-scheduler
+        restart: unless-stopped
+        working_dir: /app
+        volumes:
+            - .:/app
+        env_file:
+            - .env
+        command: >
+            sh -c "while true; do php artisan schedule:run; sleep 60; done"
+
+volumes:
+    mysql-data:
+
+networks:
+    proxy:
+        external: true
