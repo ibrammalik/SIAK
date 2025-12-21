@@ -1,0 +1,74 @@
+name: Deploy Laravel (CI Build + Rsync)
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+
+      - name: Install Composer deps
+        run: composer install --no-dev --prefer-dist --optimize-autoloader
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Build frontend
+        run: |
+          npm install
+          npm run build
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: laravel-build
+          path: |
+            vendor
+            public/build
+            bootstrap/cache
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: laravel-build
+
+      - name: Install Cloudflared
+        run: |
+          curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb -o cloudflared.deb
+          sudo dpkg -i cloudflared.deb
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      - name: Rsync build results
+        run: |
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no -o ProxyCommand='cloudflared access tcp --hostname %h'" \
+            vendor \
+            public/build \
+            bootstrap/cache \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DESTINATION }}
+
+      - name: Pull & restart containers
+        run: |
+          ssh -o StrictHostKeyChecking=no -o ProxyCommand='cloudflared access tcp --hostname %h'" ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            cd ${{ secrets.DESTINATION }}
+            git pull --rebase
+            docker compose up -d
+          EOF
