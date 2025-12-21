@@ -67,7 +67,7 @@ jobs:
 
       - name: Pull & restart containers
         run: |
-          ssh -o StrictHostKeyChecking=no -o ProxyCommand='cloudflared access tcp --hostname %h'" ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -o ProxyCommand='cloudflared access tcp --hostname %h' ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             cd ${{ secrets.DESTINATION }}
             git pull --rebase
             docker compose up -d
