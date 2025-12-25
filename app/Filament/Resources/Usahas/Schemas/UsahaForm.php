@@ -11,6 +11,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class UsahaForm
 {
@@ -101,7 +102,7 @@ class UsahaForm
                 Select::make('rw_id')
                     ->label('RW')
                     ->relationship('rw', 'nomor', modifyQueryUsing: function (Builder $query) {
-                        $user = auth()->user();
+                        $user = Auth::user();
                         if ($user->isRW() || $user->isRT()) {
                             $query->where('id', $user->rw_id);
                         }
@@ -121,7 +122,7 @@ class UsahaForm
                     ->searchable()
                     ->required()
                     ->relationship('rt', 'nomor', modifyQueryUsing: function (Builder $query, $get) {
-                        $user = auth()->user();
+                        $user = Auth::user();
                         $query->where('rw_id', $get('rw_id'));
 
                         if ($user->isRT()) {
