@@ -13,6 +13,7 @@ class Usaha extends Model
         'subkategori_usaha_id',
         'nama',
         'nama_pemilik',
+        'nomor_pemilik',
         'alamat',
         'rw_id',
         'rt_id',

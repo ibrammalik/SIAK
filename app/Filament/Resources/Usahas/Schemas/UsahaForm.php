@@ -82,14 +82,21 @@ class UsahaForm
                     ->columnSpanFull()
                     ->required()
                     ->hint('Nama usaha sesuai dengan dokumen resmi jika ada')
-                    ->helperText('Contoh: Toko Sumber Makmur'),
+                    ->placeholder('Contoh: Toko Sumber Makmur'),
 
                 TextInput::make('nama_pemilik')
                     ->label('Nama Pemilik')
-                    ->columnSpanFull()
                     ->required()
                     ->hint('Nama pemilik usaha')
-                    ->helperText('Contoh: Budi Santoso'),
+                    ->placeholder('Contoh: Budi Santoso'),
+
+                TextInput::make('nomor_pemilik')
+                    ->label('Nomor Pemilik')
+                    ->required()
+                    ->tel()
+                    ->hint('Nomor HP yang dapat dihubungi')
+                    ->placeholder('Contoh: 081234567890')
+                    ->rules(['regex:/^[0-9+\-\s]+$/']),
 
                 Select::make('rw_id')
                     ->label('RW')

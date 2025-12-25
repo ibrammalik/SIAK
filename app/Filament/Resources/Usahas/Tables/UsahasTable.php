@@ -30,6 +30,9 @@ class UsahasTable
                 TextColumn::make('nama_pemilik')
                     ->searchable(),
 
+                TextColumn::make('nomor_pemilik')
+                    ->searchable(),
+
                 TextColumn::make('rw.nomor')
                     ->label('RW')
                     ->numeric()
