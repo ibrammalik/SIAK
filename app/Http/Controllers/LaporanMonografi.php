@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\JenisKelamin;
 use App\Enums\Shdk;
 use App\Models\KategoriFasilitas;
+use App\Models\KategoriPendidikan;
 use App\Models\KategoriUsaha;
 use App\Models\Pekerjaan;
 use App\Models\Penduduk;
@@ -80,7 +81,7 @@ class LaporanMonografi extends Controller
             'jenis_kelamin',
             'tanggal_lahir',
             'pekerjaan_id',
-            'pendidikan',
+            'pendidikan_id',
             'agama',
             'status_perkawinan',
             'shdk',
@@ -180,16 +181,9 @@ class LaporanMonografi extends Controller
         }
 
         // default pendidikan (sesuaikan dengan kebutuhan; akan ditambah jika ada lainnya)
-        $defaultPendidikan = [
-            'Perguruan Tinggi',
-            'Tamat Akademi',
-            'Tamat SLTA',
-            'Tamat SLTP',
-            'Tamat SD',
-            'Tidak Tamat SD',
-            'Belum Tamat SD',
-            'Tidak Sekolah',
-        ];
+        $defaultPendidikan = KategoriPendidikan::pluck('name', 'id')->toArray();
+
+        $defaultPendidikan[null] = 'Belum diisi';
 
         // pendidikan: sama pola
         // pendidikan dihitung jika umur >= 5
@@ -200,28 +194,18 @@ class LaporanMonografi extends Controller
         // group berdasarkan pendidikan
         $pendidikanGrouped = $pendudukPendidikan
             ->groupBy(function ($p) {
-                return trim($p->pendidikan ?? 'Tidak Diketahui');
+                return trim($p->pendidikan_id);
             })
             ->map->count()
             ->toArray();
 
         // susun format final
         $pendidikanFinal = [];
-        foreach ($defaultPendidikan as $jenjang) {
+        foreach ($defaultPendidikan as $pendidikan_id => $jenjang) {
             $pendidikanFinal[] = [
                 'jenjang' => $jenjang,
-                'jumlah' => $pendidikanGrouped[$jenjang] ?? 0,
+                'jumlah' => $pendidikanGrouped[$pendidikan_id] ?? 0,
             ];
-        }
-
-        // tambahkan hasil lain dari DB yang tidak ada di default
-        foreach ($pendidikanGrouped as $jenjang => $jumlah) {
-            if (!in_array($jenjang, $defaultPendidikan)) {
-                $pendidikanFinal[] = [
-                    'jenjang' => $jenjang,
-                    'jumlah' => $jumlah,
-                ];
-            }
         }
 
         // default agama

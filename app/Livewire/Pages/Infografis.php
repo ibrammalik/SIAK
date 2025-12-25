@@ -4,10 +4,10 @@ namespace App\Livewire\Pages;
 
 use App\Enums\Agama;
 use App\Enums\JenisKelamin;
-use App\Enums\Pendidikan;
 use App\Enums\Shdk;
 use App\Enums\StatusPerkawinan;
 use App\Livewire\BaseLayout;
+use App\Models\KategoriPendidikan;
 use App\Models\Keluarga;
 use App\Models\Pekerjaan;
 use App\Models\Penduduk;
@@ -27,7 +27,7 @@ class Infografis extends BaseLayout
             'jenis_kelamin',
             'tanggal_lahir',
             'pekerjaan_id',
-            'pendidikan',
+            'pendidikan_id',
             'agama',
             'status_perkawinan',
             'shdk',
@@ -158,19 +158,16 @@ class Infografis extends BaseLayout
                 ];
             });
 
-        // Ambil label dari enum
-        $pendidikanLabels = array_reverse(Pendidikan::values());
+        // Ambil label dari model kategori pendidikan
+        $pendidikanLabels = KategoriPendidikan::pluck('name')->toArray();
 
-        // Hitung jumlah setiap pendidikan sesuai enum
-        $pendidikanCounts = [];
-        foreach (array_reverse(Pendidikan::cases()) as $case) {
-            $pendidikanCounts[] = Penduduk::where('pendidikan', $case->value)->count();
-        }
+        // Hitung jumlah setiap pendidikan sesuai data di kategori pendidikan
+        $pendidikanCounts = KategoriPendidikan::withCount('penduduks')->pluck('penduduks_count', 'name')->toArray();
 
-        // ============================
-        // PEKERJAAN (berdasarkan Models)
-        // ============================
+        // penduduk dengan pendidikan_id null masukkan ke kategori belum diisi
+        $pendidikanCounts['Belum Diisi'] = Penduduk::whereNull('pendidikan_id')->count();
 
+        // pekerjaan berdasarkan model
         // Ambil label enum
         $pekerjaanLabels = Pekerjaan::pluck('name', 'id')->toArray();
 

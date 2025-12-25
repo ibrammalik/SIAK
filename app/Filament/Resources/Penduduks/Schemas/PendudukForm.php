@@ -146,12 +146,18 @@ class PendudukForm
                         ->hintIcon('heroicon-m-book-open')
                         ->hintIconTooltip('Pilih agama sesuai identitas resmi.'),
 
-                    Select::make('pendidikan')
+                    Select::make('pendidikan_id')
                         ->label('Pendidikan Terakhir')
-                        ->options(Pendidikan::options())
+                        ->relationship('pendidikan', 'name')
                         ->native(false)
                         ->required()
+                        ->preload()
                         ->searchable()
+                        ->createOptionForm([
+                            TextInput::make('name')
+                                ->label('Kategori')
+                                ->required()
+                        ])
                         ->hintIcon('heroicon-m-academic-cap')
                         ->hintIconTooltip('Pilih pendidikan terakhir yang ditempuh.'),
 

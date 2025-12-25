@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Filament\Concerns\ResolvesWilayah;
+use App\Models\KategoriPendidikan;
 use App\Models\Penduduk;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
@@ -31,9 +32,19 @@ class DistribusiPendidikanChart extends ChartWidget
         }
 
         // Ambil data dari database
-        $rawData = $query
-            ->select('pendidikan', DB::raw('COUNT(*) as total'))
-            ->groupBy('pendidikan')
+        $rawData = DB::table('kategori_pendidikans as kp')
+            ->leftJoin('penduduks as p', 'p.pendidikan_id', '=', 'kp.id')
+            ->when($state['wilayah'] === 'rw', function ($q) use ($state) {
+                $q->where('p.rw_id', $state['rw']->id);
+            })
+            ->when($state['wilayah'] === 'rt', function ($q) use ($state) {
+                $q->where('p.rt_id', $state['rt']->id);
+            })
+            ->select(
+                'kp.name as pendidikan',
+                DB::raw('COUNT(p.id) as total')
+            )
+            ->groupBy('kp.name')
             ->pluck('total', 'pendidikan')
             ->toArray();
 
@@ -41,10 +52,27 @@ class DistribusiPendidikanChart extends ChartWidget
         $labels = [];
         $values = [];
 
-        foreach (\App\Enums\Pendidikan::values() as $pendidikan) {
-            $labels[] = $pendidikan;
-            $values[] = $rawData[$pendidikan] ?? 0;
+        foreach (KategoriPendidikan::all() as $pendidikan) {
+            $labels[] = $pendidikan->name;
+            $values[] = $rawData[$pendidikan->name] ?? 0;
         }
+
+        $belumDiisi = DB::table('penduduks')
+            ->whereNull('pendidikan_id')
+            ->when(
+                $state['wilayah'] === 'rw',
+                fn($q) =>
+                $q->where('rw_id', $state['rw']->id)
+            )
+            ->when(
+                $state['wilayah'] === 'rt',
+                fn($q) =>
+                $q->where('rt_id', $state['rt']->id)
+            )
+            ->count();
+
+        $labels[] = "Belum Diisi";
+        $values[] = $belumDiisi;
 
         return [
             'datasets' => [

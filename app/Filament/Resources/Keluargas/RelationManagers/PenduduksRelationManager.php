@@ -58,7 +58,7 @@ class PenduduksRelationManager extends RelationManager
                     ->label('Agama')
                     ->toggleable(),
 
-                TextColumn::make('pendidikan')
+                TextColumn::make('pendidikan.name')
                     ->label('Pendidikan')
                     ->toggleable(),
 

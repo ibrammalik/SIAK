@@ -59,7 +59,7 @@ class PenduduksTable
                     ->badge()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                TextColumn::make('pendidikan')
+                TextColumn::make('pendidikan.name')
                     ->label('Pendidikan')
                     ->badge()
                     ->toggleable(isToggledHiddenByDefault: true),

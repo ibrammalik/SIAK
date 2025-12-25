@@ -135,11 +135,12 @@
                         $now = \Carbon\Carbon::now();
                         $diff = $dob->diff($now);
                     @endphp
-                    <td>{{ $diff->y }} tahun {{ $diff->m }} bulan {{ $diff->d }} hari</td>
+                    <td>{{ $diff->y }} tahun</td>
+                    {{--  {{ $diff->m }} bulan {{ $diff->d }} hari --}}
 
                     <td>{{ $anggota->agama }}</td>
-                    <td>{{ $anggota->pendidikan }}</td>
-                    <td>{{ $anggota->pekerjaan }}</td>
+                    <td>{{ $anggota->pendidikan->name }}</td>
+                    <td>{{ $anggota->pekerjaan->name }}</td>
                     <td>{{ $anggota->status_perkawinan }}</td>
                     <td>{{ $anggota->shdk }}</td>
                     {{-- <td>WNI</td> --}}

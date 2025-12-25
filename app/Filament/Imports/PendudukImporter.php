@@ -4,10 +4,10 @@ namespace App\Filament\Imports;
 
 use App\Enums\Agama;
 use App\Enums\JenisKelamin;
-use App\Enums\Pendidikan;
 use App\Enums\Shdk;
 use App\Enums\StatusKependudukan;
 use App\Enums\StatusPerkawinan;
+use App\Models\KategoriPendidikan;
 use App\Models\Keluarga;
 use App\Models\Pekerjaan;
 use App\Models\Penduduk;
@@ -18,6 +18,7 @@ use Filament\Actions\Imports\Exceptions\RowImportFailedException;
 use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Number;
 
 class PendudukImporter extends Importer
@@ -92,23 +93,12 @@ class PendudukImporter extends Importer
     {
         $row = $this->data;
 
-        /*
-        |--------------------------------------------------------------------------
-        | ENUM VALIDATION
-        |--------------------------------------------------------------------------
-        */
+        // validasi enum
         $this->validateEnum($row['jenis_kelamin'], JenisKelamin::class, 'Jenis Kelamin');
         $this->validateEnum($row['agama'] ?? null, Agama::class, 'Agama');
-        $this->validateEnum($row['pendidikan'] ?? null, Pendidikan::class, 'Pendidikan');
         $this->validateEnum($row['status_perkawinan'] ?? null, StatusPerkawinan::class, 'Status Perkawinan');
         $this->validateEnum($row['status_kependudukan'] ?? null, StatusKependudukan::class, 'Status Kependudukan');
         $this->validateEnum($row['shdk'] ?? null, Shdk::class, 'SHDK');
-
-        /*
-        |--------------------------------------------------------------------------
-        | RW / RT / KELUARGA
-        |--------------------------------------------------------------------------
-        */
 
         // Validasi RW
         if (!is_numeric($row['rw'])) {
@@ -129,12 +119,8 @@ class PendudukImporter extends Importer
             'rw_id' => $rw->id
         ]);
 
-        /*
-    |--------------------------------------------------------------------------
-    | ROLE VALIDATION (KETUA RW / RT)
-    |--------------------------------------------------------------------------
-    */
-        $user = auth()->user();
+        // Validasi role ketua rw / rt
+        $user = Auth::user();
 
         if ($user->isRW() && $user->rw_id !== $rw->id) {
             throw new RowImportFailedException(
@@ -162,35 +148,33 @@ class PendudukImporter extends Importer
             ]
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | Pekerjaan
-        |--------------------------------------------------------------------------
-        */
-
+        // Pekerjaan, cari atau baru. Pros implementasi lebih gampang ketimbang
+        // pakai pekerjaan yang sudah ada dan fail ketika pekerjaan penduduk yang
+        // diimport tidak ada. Cons kalau input pekerjaan penulisan tidak konsisten
+        // seperti (huruf kapital, typo dalam penulisan) maka data tidak konsisten.
         $pekerjaan = Pekerjaan::firstOrCreate(
             ['name' => $row['pekerjaan']],
             ['name' => $row['pekerjaan']],
         );
 
+        // sama seperti pekerjaan
+        $pendidikan = KategoriPendidikan::firstOrCreate(
+            ['name' => $row['pendidikan']],
+            ['name' => $row['pendidikan']],
+        );
 
-        /*
-        |--------------------------------------------------------------------------
-        | RETURN RECORD BARU
-        | Filament akan mengisi semua kolom lain otomatis.
-        |--------------------------------------------------------------------------
-        */
+
+        // return record baru penduduk, kolom lain terisi otomatis.
         return new Penduduk([
             'rw_id'       => $rw->id,
             'rt_id'       => $rt->id,
             'keluarga_id' => $keluarga->id,
             'pekerjaan_id' => $pekerjaan->id,
+            'pendidikan_id' => $pendidikan->id,
         ]);
     }
 
-    /**
-     * ENUM VALIDATION HELPER
-     */
+    // Fungsi helper untuk validasi enum
     private function validateEnum(string|null $value, string $enumClass, string $label): void
     {
         if ($value === null || $value === '') {
