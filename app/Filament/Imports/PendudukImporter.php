@@ -70,7 +70,8 @@ class PendudukImporter extends Importer
                 ->rules(['max:255']),
 
             ImportColumn::make('pendidikan')
-                ->rules(['max:255']),
+                ->rules(['max:255'])
+                ->fillRecordUsing(fn() => null),
 
             ImportColumn::make('status_perkawinan')
                 ->rules(['max:255']),
