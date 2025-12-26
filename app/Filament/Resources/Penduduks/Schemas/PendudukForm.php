@@ -61,7 +61,7 @@ class PendudukForm
                         ->createOptionForm(KeluargaForm::getFormSchema())
                         ->hintIcon('heroicon-m-identification')
                         ->hintIconTooltip('Pilih nomor Kartu Keluarga (KK) yang sudah terdaftar.')
-                        ->helperText('Jika KK belum ada, buat data keluarga terlebih dahulu.')
+                        ->helperText('Jika KK belum ada, buat data keluarga terlebih dahulu dengan klik tombol + di kanan.')
                         ->columnSpanFull(),
 
                     Fieldset::make('Wilayah RT / RW')
