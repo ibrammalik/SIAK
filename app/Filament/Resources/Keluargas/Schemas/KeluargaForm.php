@@ -31,6 +31,10 @@ class KeluargaForm
                 ->preload()
                 ->searchable()
                 ->required()
+                ->afterStateHydrated(function ($set) {
+                    $user = Auth::user();
+                    if ($user->isRW() || $user->isRT()) $set('rw_id', $user->rw_id);
+                })
                 ->createOptionAction(
                     fn($action) => $action->visible(
                         Auth::user()->isSuperAdmin() || Auth::user()->isKelurahan()
@@ -65,6 +69,10 @@ class KeluargaForm
                         $query->where('id', $user->rt_id);
                     }
                 })
+                ->afterStateHydrated(function ($set) {
+                    $user = Auth::user();
+                    if ($user->isRT()) $set('rt_id', $user->rt_id);
+                })
                 ->createOptionForm([
                     // === PILIH RW ===
                     Select::make('rw_id')
@@ -78,6 +86,10 @@ class KeluargaForm
                         ->preload()
                         ->searchable()
                         ->required()
+                        ->afterStateHydrated(function ($set) {
+                            $user = Auth::user();
+                            if ($user->isRW() || $user->isRT()) $set('rw_id', $user->rw_id);
+                        })
                         ->hintIcon('heroicon-m-map')
                         ->hintIconTooltip('Pilih RW tempat RT ini berada.')
                         ->helperText('RT harus berada di bawah satu RW tertentu.')
