@@ -40,6 +40,7 @@ class KeluargaForm
                         Auth::user()->isSuperAdmin() || Auth::user()->isKelurahan()
                     )
                 )
+                ->createOptionModalHeading('Buat RW Baru')
                 ->createOptionForm([
                     // === Nomor RW ===
                     TextInput::make('nomor')
@@ -73,6 +74,20 @@ class KeluargaForm
                     $user = Auth::user();
                     if ($user->isRT()) $set('rt_id', $user->rt_id);
                 })
+                ->afterStateUpdated(function ($state, $set) {
+                    if ($state) {
+                        $rt = RT::find($state);
+                        if ($rt) {
+                            $set('rw_id', $rt->rw_id);
+                        }
+                    }
+                })
+                ->createOptionAction(
+                    fn($action) => $action->visible(
+                        Auth::user()->isSuperAdmin() || Auth::user()->isKelurahan() || Auth::user()->isRW()
+                    )
+                )
+                ->createOptionModalHeading('Buat RT Baru')
                 ->createOptionForm([
                     // === PILIH RW ===
                     Select::make('rw_id')

@@ -21,6 +21,7 @@ use App\Enums\StatusPerkawinan;
 use App\Enums\StatusKependudukan;
 use App\Enums\Shdk;
 use App\Filament\Resources\Keluargas\Schemas\KeluargaForm;
+use Filament\Actions\Action;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
@@ -48,6 +49,15 @@ class PendudukForm
                         ->searchable()
                         ->required()
                         ->live()
+                        ->afterStateHydrated(function (Set $set, ?string $state) {
+                            $keluarga = Keluarga::find($state);
+
+                            if ($keluarga) {
+                                $set('alamat', $keluarga->alamat ?? null);
+                            } else {
+                                $set('alamat', null);
+                            }
+                        })
                         ->afterStateUpdated(function (Set $set, ?string $state) {
                             $keluarga = Keluarga::with(['rw', 'rt'])->find($state);
 
@@ -61,6 +71,7 @@ class PendudukForm
                                 $set('alamat', null);
                             }
                         })
+                        ->createOptionModalHeading('Buat Keluarga Baru')
                         ->createOptionForm(KeluargaForm::getFormSchema())
                         ->hintIcon('heroicon-m-identification')
                         ->hintIconTooltip('Pilih nomor Kartu Keluarga (KK) yang sudah terdaftar.')
@@ -72,6 +83,7 @@ class PendudukForm
                             Select::make('rt_id')
                                 ->label('RT')
                                 ->options(RT::query()->pluck('nomor', 'id'))
+                                ->searchable()
                                 ->disabled()
                                 ->dehydrated()
                                 ->required()
@@ -82,6 +94,7 @@ class PendudukForm
                             Select::make('rw_id')
                                 ->label('RW')
                                 ->options(RW::query()->pluck('nomor', 'id'))
+                                ->searchable()
                                 ->disabled()
                                 ->dehydrated()
                                 ->required()

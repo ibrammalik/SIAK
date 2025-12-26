@@ -88,7 +88,22 @@ class RTForm
                             }
                         };
                     })
-                    ->createOptionForm(PendudukForm::getFormSchema()),
+                    ->createOptionModalHeading(function (?RT $record) {
+                        return $record
+                            ? "Buat Ketua RT {$record->nomor} / RW {$record->rw->nomor}"
+                            : 'Buat Ketua RT';
+                    })
+                    ->createOptionForm(PendudukForm::getFormSchema())
+                    ->createOptionUsing(function (array $data) {
+                        $penduduk = \App\Models\Penduduk::create($data);
+
+                        if (($data['shdk'] ?? null) === 'Kepala' && !empty($data['keluarga_id'])) {
+                            \App\Models\Keluarga::where('id', $data['keluarga_id'])
+                                ->update(['kepala_id' => $penduduk->id]);
+                        }
+
+                        return $penduduk->id;
+                    }),
             ]);
     }
 }
