@@ -9,6 +9,7 @@ use App\Models\RW;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\TextArea;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
@@ -53,9 +54,11 @@ class PendudukForm
                             if ($keluarga) {
                                 $set('rw_id', $keluarga->rw->id ?? null);
                                 $set('rt_id', $keluarga->rt->id ?? null);
+                                $set('alamat', $keluarga->alamat ?? null);
                             } else {
                                 $set('rw_id', null);
                                 $set('rt_id', null);
+                                $set('alamat', null);
                             }
                         })
                         ->createOptionForm(KeluargaForm::getFormSchema())
@@ -85,6 +88,10 @@ class PendudukForm
                                 ->hintIcon('heroicon-m-map')
                                 ->hintIconTooltip('RW akan terisi otomatis berdasarkan KK yang dipilih.')
                                 ->helperText('Nilai RW akan mengikuti data keluarga.'),
+
+                            TextArea::make('alamat')
+                                ->columnSpanFull()
+                                ->disabled(),
                         ])
                         ->columns(2)
                         ->columnSpanFull()
