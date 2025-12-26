@@ -20,6 +20,8 @@ use App\Enums\StatusPerkawinan;
 use App\Enums\StatusKependudukan;
 use App\Enums\Shdk;
 use App\Filament\Resources\Keluargas\Schemas\KeluargaForm;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class PendudukForm
 {
@@ -32,7 +34,15 @@ class PendudukForm
                 ->schema([
                     Select::make('keluarga_id')
                         ->label('Nomor KK')
-                        ->relationship('keluarga', 'no_kk')
+                        ->relationship(
+                            name: 'keluarga',
+                            titleAttribute: 'no_kk',
+                            modifyQueryUsing: function (Builder $query) {
+                                $user = Auth::user();
+                                if ($user->isRW()) return $query->where('rw_id', $user->rw_id);
+                                if ($user->isRT()) return $query->where('rt_id', $user->rt_id);
+                            }
+                        )
                         ->preload()
                         ->searchable()
                         ->required()
