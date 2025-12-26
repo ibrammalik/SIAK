@@ -22,9 +22,9 @@ class PekerjaanResource extends Resource
     protected static ?string $model = Pekerjaan::class;
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
     protected static string | UnitEnum | null $navigationGroup = 'Master Data';
-    protected static ?string $navigationLabel = 'Pekerjaan';
-    protected static ?string $pluralModelLabel = 'Pekerjaan';
-    protected static ?string $modelLabel = 'Pekerjaan';
+    protected static ?string $navigationLabel = 'Kategori Pekerjaan';
+    protected static ?string $pluralModelLabel = 'Kategori Pekerjaan';
+    protected static ?string $modelLabel = 'Kategori Pekerjaan';
 
     public static function form(Schema $schema): Schema
     {
