@@ -16,6 +16,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use UnitEnum;
 
 class PendudukResource extends Resource
@@ -25,7 +26,7 @@ class PendudukResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::User;
     protected static string | UnitEnum | null $navigationGroup = 'Kependudukan';
     protected static ?int $navigationSort = 4;
-    protected static ?string $navigationLabel = 'Penduduk';
+    protected static ?string $navigationLabel = 'Input Penduduk';
     protected static ?string $pluralModelLabel = 'Penduduk';
     protected static ?string $modelLabel = 'Penduduk';
 
@@ -63,7 +64,7 @@ class PendudukResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        $user = auth()->user();
+        $user = Auth::user();
         if ($user->isSuperAdmin() || $user->isKelurahan()) return parent::getEloquentQuery();
         if ($user->isRW()) return parent::getEloquentQuery()->where('rw_id', $user->rw_id);
         if ($user->isRT()) return parent::getEloquentQuery()->where('rt_id', $user->rt_id);
