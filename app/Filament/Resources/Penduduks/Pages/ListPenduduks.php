@@ -29,7 +29,7 @@ class ListPenduduks extends ListRecords
                 ->modalDescription(function () {
                     return new HtmlString('
                         <a class="text-sm font-medium text-primary-400 hover:underline cursor-pointer"
-                            href="' . asset('storage/contoh-import-penduduk-v1.xlsx') . '"
+                            href="' . route('download.contoh-import') . '"
                         >
                             Download contoh file dan tutorial import penduduk.
                         </a>

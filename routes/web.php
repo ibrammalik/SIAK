@@ -19,3 +19,12 @@ Route::get('/peta', Peta::class)->name('peta');
 Route::get('/kontak', Kontak::class)->name('kontak');
 
 Route::get('/rw-onboarding', RWOnboarding::class)->name('rw-onboarding');
+
+
+Route::get('/download/contoh-import', function () {
+  $path = storage_path('app/public/contoh-import-penduduk-v1.xlsx');
+
+  abort_unless(file_exists($path), 404);
+
+  return response()->download($path, 'contoh-import-penduduk-v1.xlsx');
+})->name('download.contoh-import');
