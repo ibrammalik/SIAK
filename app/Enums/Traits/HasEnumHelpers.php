@@ -33,4 +33,20 @@ trait HasEnumHelpers
   {
     return self::labels();
   }
+
+  /**
+   * Case-insensitive enum lookup by value.
+   */
+  public static function fromInsensitive(string $value): ?self
+  {
+    $value = trim($value);
+
+    foreach (self::cases() as $case) {
+      if (strcasecmp($case->value, $value) === 0) {
+        return $case;
+      }
+    }
+
+    return null;
+  }
 }
