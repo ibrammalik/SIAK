@@ -41,6 +41,17 @@ class PendudukImporter extends Importer
             ImportColumn::make('no_kk')
                 ->fillRecordUsing(fn() => null),
 
+            ImportColumn::make('alamat')
+                ->fillRecordUsing(fn() => null),
+
+            ImportColumn::make('pekerjaan')
+                ->rules(['max:255'])
+                ->fillRecordUsing(fn() => null),
+
+            ImportColumn::make('pendidikan')
+                ->rules(['max:255'])
+                ->fillRecordUsing(fn() => null),
+
             ImportColumn::make('nik')
                 ->requiredMapping()
                 ->rules(['unique:penduduks', 'required', 'max:255']),
@@ -56,50 +67,65 @@ class PendudukImporter extends Importer
                 ->rules(['max:255']),
 
             ImportColumn::make('tanggal_lahir')
-                ->rules(['date'])
+                ->rules(['date', 'required'])
                 ->castStateUsing(function ($state) {
-                    $state = Carbon::createFromFormat('d/m/Y', $state)->format('Y-m-d');
-                    return $state;
+                    // Normalisasi: 3/7/1965 -> 03/07/1965
+                    if (preg_match('#^(\d{1,2})/(\d{1,2})/(\d{4})$#', $state, $m)) {
+                        $day   = str_pad($m[1], 2, '0', STR_PAD_LEFT);
+                        $month = str_pad($m[2], 2, '0', STR_PAD_LEFT);
+                        $year  = $m[3];
+
+                        return Carbon::createFromFormat(
+                            'd/m/Y',
+                            "$day/$month/$year"
+                        )->format('Y-m-d');
+                    }
+
+                    throw new RowImportFailedException(
+                        "Format tanggal lahir tidak valid: [$state]. Gunakan DD/MM/YYYY"
+                    );
                 }),
 
             ImportColumn::make('jenis_kelamin')
-                ->requiredMapping()
-                ->rules(['required', 'max:255']),
+                ->rules(['required', 'max:255'])
+                ->castStateUsing(
+                    fn($state) =>
+                    self::castEnum($state, JenisKelamin::class, 'Jenis Kelamin')
+                ),
 
             ImportColumn::make('agama')
-                ->rules(['max:255']),
-
-            ImportColumn::make('pendidikan')
-                ->rules(['max:255'])
-                ->fillRecordUsing(fn() => null),
+                ->rules(['required', 'max:255'])
+                ->castStateUsing(
+                    fn($state) =>
+                    self::castEnum($state, Agama::class, 'Agama', true)
+                ),
 
             ImportColumn::make('status_perkawinan')
-                ->rules(['max:255']),
-
-            ImportColumn::make('pekerjaan')
-                ->rules(['max:255'])
-                ->fillRecordUsing(fn() => null),
+                ->rules(['required', 'max:255'])
+                ->castStateUsing(
+                    fn($state) =>
+                    self::castEnum($state, StatusPerkawinan::class, 'Status Perkawinan', true)
+                ),
 
             ImportColumn::make('status_kependudukan')
-                ->requiredMapping()
-                ->rules(['required', 'max:255']),
+                ->rules(['required', 'max:255'])
+                ->castStateUsing(
+                    fn($state) =>
+                    self::castEnum($state, StatusKependudukan::class, 'Status Kependudukan')
+                ),
 
             ImportColumn::make('shdk')
-                ->requiredMapping()
-                ->rules(['required', 'max:255']),
+                ->rules(['required', 'max:255'])
+                ->castStateUsing(
+                    fn($state) =>
+                    self::castEnum($state, Shdk::class, 'SHDK')
+                ),
         ];
     }
 
     public function resolveRecord(): ?Penduduk
     {
         $row = $this->data;
-
-        // validasi enum
-        $this->validateEnum($row['jenis_kelamin'], JenisKelamin::class, 'Jenis Kelamin');
-        $this->validateEnum($row['agama'] ?? null, Agama::class, 'Agama');
-        $this->validateEnum($row['status_perkawinan'] ?? null, StatusPerkawinan::class, 'Status Perkawinan');
-        $this->validateEnum($row['status_kependudukan'] ?? null, StatusKependudukan::class, 'Status Kependudukan');
-        $this->validateEnum($row['shdk'] ?? null, Shdk::class, 'SHDK');
 
         // Validasi RW
         if (!is_numeric($row['rw'])) {
@@ -164,7 +190,6 @@ class PendudukImporter extends Importer
             ['name' => $row['pendidikan']],
         );
 
-
         // return record baru penduduk, kolom lain terisi otomatis.
         return new Penduduk([
             'rw_id'       => $rw->id,
@@ -176,18 +201,28 @@ class PendudukImporter extends Importer
     }
 
     // Fungsi helper untuk validasi enum
-    private function validateEnum(string|null $value, string $enumClass, string $label): void
+    private static function castEnum(mixed $state, string $enumClass, string $label, bool $nullable = false): ?string
     {
-        if ($value === null || $value === '') {
-            return; // field nullable => skip
+        if (blank($state)) {
+            if ($nullable) {
+                return null;
+            }
+
+            throw new RowImportFailedException("$label wajib diisi.");
         }
 
-        if ($enumClass::tryFrom($value) === null) {
+        $enum = $enumClass::fromInsensitive($state);
+
+        if ($enum === null) {
             $allowed = implode(', ', $enumClass::values());
-            throw new RowImportFailedException("$label tidak valid: [$value]. Harus salah satu dari: $allowed");
-        }
-    }
 
+            throw new RowImportFailedException(
+                "$label tidak valid: [$state]. Harus salah satu dari: $allowed"
+            );
+        }
+
+        return $enum->value;
+    }
 
     public static function getCompletedNotificationBody(Import $import): string
     {
