@@ -107,9 +107,9 @@ class PendudukImporter extends Importer
             ImportColumn::make('no_telp')
                 ->requiredMapping()
                 ->rules([
-                    'nullable',
+                    'required',
                     'string',
-                    'regex:/^(\+62|62|0)8[1-9][0-9]{6,11}$/',
+                    'regex:/^((\+62|62|0)8[1-9][0-9]{6,11}|-)$/'
                 ]),
 
             ImportColumn::make('tempat_lahir')
@@ -197,13 +197,13 @@ class PendudukImporter extends Importer
         $importRw = $this->data['rw'];
         $importRt = $this->data['rt'];
 
-        if ($user->isRW() && $user->rw?->nomor !== $importRw) {
+        if ($user->isRW() && $user->rw?->nomor != $importRw) {
             throw new RowImportFailedException(
                 "Import ditolak. Data (RW {$importRw}) tidak sesuai dengan wilayah Anda (RW {$user->rw->nomor})."
             );
         }
 
-        if ($user->isRT() && $user->rw?->nomor !== $importRw && $user->rt?->nomor !== $importRt) {
+        if ($user->isRT() && $user->rw?->nomor != $importRw && $user->rt?->nomor != $importRt) {
             throw new RowImportFailedException(
                 "Import ditolak. Data (RT {$importRt}/ RW {$importRw}) tidak sesuai dengan wilayah Anda (RT {$user->rt->nomor} / RW {$user->rw->nomor})."
             );
