@@ -30,7 +30,18 @@ class KeluargasTable
                 TextColumn::make('kepala.nama')
                     ->label('Kepala')
                     ->default('-')
-                    ->sortable(),
+                    ->sortable()
+                    ->formatStateUsing(function ($state, $record) {
+                        //Pakai relationship kepala jika kepala_id tidak null
+                        if ($record->kepala_id && $record->kepala) {
+                            return $record->kepala->nama;
+                        }
+
+                        // Selain itu, pakai penduduk dengan shdk = Kepala yg sudah 
+                        // di eager load di getEloquentQuery di KeluargaResource
+                        $pendudukKepala = $record->penduduks->first();
+                        return $pendudukKepala?->nama ?? '-';
+                    }),
 
                 TextColumn::make('alamat')
                     ->searchable()

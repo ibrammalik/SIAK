@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Keluargas;
 
+use App\Enums\Shdk;
 use App\Filament\Resources\Keluargas\Pages\CreateKeluarga;
 use App\Filament\Resources\Keluargas\Pages\EditKeluarga;
 use App\Filament\Resources\Keluargas\Pages\ListKeluargas;
@@ -17,6 +18,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use UnitEnum;
 
 class KeluargaResource extends Resource
@@ -64,10 +66,18 @@ class KeluargaResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        $user = auth()->user();
-        if ($user->isSuperAdmin() || $user->isKelurahan()) return parent::getEloquentQuery();
-        if ($user->isRW()) return parent::getEloquentQuery()->where('rw_id', $user->rw_id);
-        if ($user->isRT()) return parent::getEloquentQuery()->where('rt_id', $user->rt_id);
-        return parent::getEloquentQuery();
+        $user = Auth::user();
+
+        // Base query with eager-loading
+        $query = parent::getEloquentQuery()
+            ->with([
+                'kepala', // normal kepala
+                'penduduks' => fn($q) => $q->where('shdk', Shdk::Kepala) // fallback
+            ]);
+
+        if ($user->isSuperAdmin() || $user->isKelurahan()) return $query;
+        if ($user->isRW()) return $query->where('rw_id', $user->rw_id);
+        if ($user->isRT()) return $query->where('rt_id', $user->rt_id);
+        return $query;
     }
 }
